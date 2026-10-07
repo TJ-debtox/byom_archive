@@ -9,6 +9,7 @@ This repository is the archive for the BYOM platform in Matlab (Bring Your Own M
 Since this repository is locked (read-only), new issues or pull requests cannot be opened. However, if a critical bug or error is discovered in these MATLAB files in the future, a warning notice will be posted here:
 
 * **Future updates/warnings will be shared via:** [https://www.debtox.info/byom.html](https://www.debtox.info/byom.html)
+* You can reach me at: **tjalling [at] debtox [dot] nl** (I will try to keep this address active, and otherwise will set up automatic forwarding)
 
 
 ## Licensing
