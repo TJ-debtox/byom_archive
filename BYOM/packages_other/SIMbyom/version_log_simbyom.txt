@@ -1,0 +1,25 @@
+Version log SIMbyom package for BYOM
+
+===========================================================================
+What is it?
+
+A simulation tool for BYOM models. Can plot state vs. time, but also state vs. state (2d and 3d), or derivative vs. state. Several example systems are provided: two chaotic systems, log-logistic growth, and the Rosenzweig-MacArthur population model. I mainly created this package to play with chaotic attractors, and see them in action. 
+
+An AVI for a chaotic attractor can be found at the bootom of https://www.debtox.info/byom.html
+Walkthrough for the package: https://www.debtox.info/downloads/byom/SIMbyom_html/walkthrough_simbyom.html
+Version logging starts with 2.0 (earlier version have not been logged).
+===========================================================================
+
+Version 2.0 (28 April 2017)
+
+- Modified package so it runs with BYOM 4.0.
+
+Version 2.1 (17 November 2021)
+
+- Changed the way the option structure is used. Also added two new options: plotting the y-axis on log scale, and forcing the minimum y-axis to be zero. See sim_and_plot in the engine for all options.
+- Modified package to run with BYOM v.6.0. Function calls for call_deri and derivatives modified to include 'glo'.
+- Corrected an error that may have crept in because of changes in Matlab itself: axis labels were not plotted anymore (subsequent calls to subplot created a new axis system every time). This is now corrected.
+
+Archiving in GitHub (October 2026)
+
+- The last version 2.1 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).
