@@ -1,0 +1,15 @@
+Version log GUTS_mix package for BYOM
+
+===========================================================================
+What is it?
+
+Extension of the reduced GUTS models SD and IT for dealing with binary mixtures. The model extension is presented and discussed in Bart et al (2021). This package requires BYOM v.6.0 beta 8 or newer! See the 'about' text file in this directory for more information.
+===========================================================================
+
+Version 1.0 (06/12/2021)
+
+- First version of the package
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.0 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

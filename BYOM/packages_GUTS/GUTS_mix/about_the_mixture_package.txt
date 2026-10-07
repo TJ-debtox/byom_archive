@@ -1,0 +1,69 @@
+GUTS_mix mixture package for survival data
+
+This is a first release that is not thoroughly tested yet, so please carefully scrutinise the results. Furthermore, properly analysing and interpreting mixture toxicity data with TKTD models is tough, really! This package is mainly provided to be transparant: the code as used in published papers is there to scrutinise. However, analyses of novel data sets is best left to the experts.
+
+I think a promising strategy for analysing mixture data sets is to first fit the single compounds with the parameter-space explorer, and use the parameter clouds to come up with an initial prediction for the mixture. After that, one can decide to make predictions, fit the single compounds together (especially meaningful for damage addition), or fit the complete data set (inlc. the mixture data).
+
+The model approach has been explained in detail in Bart et al (2021): https://dx.doi.org/10.1021/acs.est.0c05282. To explain the mixture effect, two options are provided: damage addition or independent action. Currently, the only interaction implemented is a simple linear interaction factor. For addition this is implemented as: DwT = DwA + WB * DwB + IAB * DwA * DwB. Where IAB is the interaction factor (0 by default), and WB the weight factor for compound B (a measure of its effectiveness, relative to compound A). For independent action, the interaction factor is included for SD on the hazard rates as follows: h_tot  = hb + hzA + hzB + IAB * hzA * hzB. For IT, the interaction factor is NOT included, as there is no obvious way to implement it!
+
+The included example is for the fungicides prochloraz and triflumizole. 
+
+Reference:
+Bart, S, T Jager, A Robinson, E Lahive, D Spurgeon, R Ashauer (2021). Predicting mixture effects over time with toxicokinetic-toxicodynamic models (GUTS): assumptions, experimental testing & predictive power. Environ Sci Technol 55(4):2430-2439. https://dx.doi.org/10.1021/acs.est.0c05282 key_sur, key_mix (Open Access).
+
+-------------------------------------------------------------------------
+Folder GUTS_ERA_special (single-chemical analyses)
+-------------------------------------------------------------------------
+The code in this folder is almost identical to the code in the GUTS package with the same name. GUTS analysis for a single chemical can now be done with the parameter-space explorer. This implies that it is fully automated (finding the optimum, confidence intervals, and a parameter sample for error propagation, all without requiring input from the user).
+
+Run the example data set for prochloraz in byom_guts_Ecr_prochloraz.m. The settings are such that SD and IT are run sequentially. This creates two MAT files with output, with the name of the script calling it, and sel1_PS for SD and sel2_PS for IT. Next, run the example data set for triflumizole in byom_guts_Ecr_triflumizole.m. also creates two MAT files for this compound as well.
+
+Now it is possible to combine the MAT files for the two chemicals into predictions for the mixture, both for addition and for independent action, and both for SD and IT. For independent action this is straightforward: since the two chemicals are independent, their parameter clouds are also independent, so we can randomly select elements from both clouds and combine them into a parameter cloud for the mixture. The new log-likelihood of the combined set is simply the sum of the values for the two chemicals.
+
+For addition, combining two clouds is less straightforward since addition implies that the two chemicals are related in some way (since they act as dilutions of each other). For SD, in the reduced model, the product of mw x bw must be the same for both chemicals, if they are to behave strictly additive. For IT, Fs must be the same for both chemicals. For each parameter set in the cloud for chemical A, we thus need to find near-matching parameter set(s) for chemical B. Finding exactly the same value for mw x bw or Fs in the two clouds will be impossible, so we need to be pragmatic. We can create a new cloud with closely matching parameter sets, and add the log-likelihoods again. Of course, it is possible that the clouds for mw x bw or Fs do NOT overlap for the two chemicals (which makes it unlikely that they are strictly additive). For this reason, a comparison plot is needed.
+
+Run the script file combine_mat_files.m. Select the results for prochloraz as chemical A, and for triflumizole as chemical B. A series of plots is produced, for damage addition and independent action, both for SD and IT. The last plot shown on screen is the parameter space for independent action of the two chemicals and IT. Note that the profile lines are missing: these are currently not calculated as they are not needed for error propagation. The lower-left 3x3 square of plots shows no correlations: these are the plots for a parameter of chemical A versus a parameter of chemical B. They are uncorrelated under independent action. In the command window, you see the best fitting parameter set (simply the combination of the two best fits for the single chemicals) and approximate CIs (based on the combined parameter cloud, but without profiling).
+
+The plot before the last one is the parameter space prediction for addition and IT. Parameter WB is included, which is the weight factor to convert the scaled internal concentrations for chemical B into those of chemical A. The plot before that compares Fs for the two data sets: for additivity, we would expect the CIs to overlap. Plots before that are the parameter-space plots for SD, and a comparison of mw x bw for the two chemicals: if the CIs do not overlap for the two chemicals, they are unlikely to be (strictly) additive. This is not a formal test of significance though. Again, details provided in the command window.
+
+Note: in this example, the results of this analysis are quite sensitive to the range of background hazard hb. The reason is that the second treatment of triflumizole has some mortality. If this is assumed to be an effect of the chemical (very low hb), very nice addition for SD results. If we don't allow very low values of hb, the mortality in this treatment is considered background, the high treatments show a better fit, and addition becomes unlikely.
+
+In this folder, you now see two MAT files starting with ADD_... and two with IND_..., one for SD (sel1) and one for IT (sel2). These are the parameter clouds that are constructed for the mixture model (addition and independent action), based on the two clouds for the single-exposure fits. The filename is generated from the filenames of the two single-exposure MAT files, using a strategy that will often work well (especially when their names start with “byom_guts_”). However, there is code commented out in plot_grid_add.m and plot_grid_ind.m (end of the file) that allow the user to manually enter a name for the mixture file using a save-file-GUI. 
+
+-------------------------------------------------------------------------
+Folder addition (mixture predictions from single-exposure fits)
+-------------------------------------------------------------------------
+Copy the combined MAT files that start with ADD... from the folder “GUTS_ERA_special” to the folder “addition”. We will use this for mixture predictions or as initial ranges for more fitting. 
+
+Open the script byom_add_fungicides_mix_pred.m. This includes the complete data set for the mixtures (including the single exposures). The definition of the exposure scenario is now treated using the standard make_scen function. This has several advantages, a.o., we can now use time-varying mixtures as well. Scenarios are defined as identifiers. The code uses make_scen to define scenarios for chemical A (prochloraz) and B (triflumizole). The scenarios for chemical A are 10, 20, etc., while for chemical B they are 1, 2, etc. 
+
+In this case, there are less than 10 unique concentrations for each chemical, so that helps (otherwise, we can use a different coding). Identifier 34 then means scenario 30 for A and scenario 4 for B. This is teased apart in simplefun. There is no need to explicitly define a scenario for the control treatment, as identifier zero will be used as a zero concentration. Also note the creation of a “LabelTable” that will provide a more meaningful identifier for the various treatments.
+
+Note that you need to take great care to use the SAME chemical as chemical A when combining MAT files and when making predictions!
+
+Run the script byom_add_fungicides_mix_pred.m, select the MAT file for sel1 (SD). Predictions for the mixture are shown, with CIs, in openGUTS-style plots. 
+
+The script byom_add_fungicides_singles.m can be used to run the parameter-space explorer on the two single data sets simultaneously. Here, you need to use the results from the combination script (ADD..._PS.mat) as starting point, including the min-max ranges (this is done automatically by selecting the correct MAT file). Since we’ll need to fit 5 or 6 parameters, it is important to reduce the volume of space to be searched; even if you don’t trust the combination script, it will almost always provide a good starting point for a combined fit.
+
+Fitting the two chemicals together is especially useful for damage addition, as the toxicity parameters mw and bw for SD, and Fs for IT, are linked for the two chemicals. This also produces a MAT file with the name of this script. This MAT file can also be used to make mixture predictions with byom_add_fungicides_mix_pred.m, which will generally be more meaningful than using the results of combine_mat_files.m. 
+
+This folder furthermore contains the script byom_add_fungicides_mix_fit.m to fit the entire data set in one go. Again, either the ADD_... MAT files or the MAT files from the singles fit should be used to provide a good starting point for the parameter ranges. When including the mixture data, it is possible to fit an interaction factor. This is a very simple, largely descriptive factor, that needs careful consideration. However, it would allow to test whether this factor is significantly different from zero.
+
+Finally, the script byom_add_pred_testdesign.m is there to make predictions from MAT files without data. This can be handy to design a mixture experiment based on the results for two single chemicals.
+
+-------------------------------------------------------------------------
+Folder independent (mixture predictions from single-exposure fits)
+-------------------------------------------------------------------------
+
+The same strategy can be followed in the folder “independent”, using the IND_..._PS.mat files. However, simultaneous fitting of single chemicals for independent action is generally a bad idea since the two chemicals are independent anyway, and since this requires fitting 6 parameters, which makes parameter space very large (it can be done, though, but the results will be essentially the same as fitting them one by one, unless background hazard varies wildly).
+
+The interaction factor is NOT used for independent action with IT, because I don’t know how that should be implemented in a logical manner for this death mechanism.
+
+-------------------------------------------------------------------------
+Limitations
+-------------------------------------------------------------------------
+At this moment, the code is limited to binary mixtures. It should be possible to extend it to tertiary mixture, if needed, but that takes a bit of work in the engine as well.
+
+At this moment, the code is limited to SD or IT and to reduced GUTS; it cannot do the combined 'GUTS proper', nor the full model (with damage and internal concentrations) yet. This is not so much of a limitation in practice, as these more complex models would require extensive data sets that are quite rare.
+
+Do not use the mixture files to fit or predict effects over very long time scales (e.g., prediction for effects under FOCUS profiles). In simplefun.m, a time vector of 500 points is currently used, which is likely not enough for long exposures.
