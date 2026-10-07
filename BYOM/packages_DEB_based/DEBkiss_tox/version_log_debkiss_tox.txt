@@ -1,0 +1,24 @@
+Version log DEBkiss_tox for BYOM
+
+===========================================================================
+What is it?
+
+A general version of the DEBkiss model,  in primary parameters, with a dedicated TKTD module added. See the 'about' text file in this directory for more information.
+
+This package was previously part of DEBtox2019. The models in primary parameters have been moved to this new package. This package began on 16 September 2022. Developements from 2017 till then have been logged in the log-file for DEBtox2019.
+===========================================================================
+
+Version 1.0 (16 September 2022)
+
+- Models in primary parameters were moved out of DEBtox2019, into this package.
+
+The following changes were included in this version, which were also made for version XXX of DEBtox2019:
+- Added Weibull background mortality parameter a to the model. When fixed to 1 it will have no effect. Values greater than one produce a nice background mortality rate that increases over time.
+- The hazard rate in derivatives is maximised to 111 d-1, which implies 99% mortality in 1 hour. This avoids the system becoming stiff under extreme parameter settings/forcings. This value assumes that all times are entered in days!
+- Tiny change in call_deri. When using an exposure scenario (with make_scen) and NOT breaking up the time vector (glo.break_time=0), call_deri sets smaller step size for the ODE solver. This makes sure that no concentration switches are missed. I now make an exception for very simple scenarios (Tev of length 2), as it is not needed and makes the solver rather slow. 
+- Changed behaviour of the acceleration (using par.Lj). Just as in standard DEB, acceleration cannot continue after puberty, so Lj <= Lp is enforced. If Lj > Lp, call_deri will just return an empty matrix (which transfer interprets as an infinitely bad fit).
+- Added a script to recreate the case study for Daphnia magna in the DEBkiss e-book version 3.0.
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.0 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

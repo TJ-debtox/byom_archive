@@ -1,0 +1,60 @@
+Version log DEBtox_classic package (previously DEBtox) for BYOM
+
+===========================================================================
+What is it?
+
+Classic simplified DEBtox model. This is the version as published by Jager & Zimmer (2012). The package includes case studies for Capitella and Daphnia that also demonstrate the calculation of the intrinsic rate of population increase. 
+
+Note: this package is NOT up-to-date with the newest insights, as included in the DEBtox e-book (version 2.0 and newer) and the revisited DEBtox2019 (Jager, 2020), which place 'damage' in a central position. The DEBtox2019 package IS fully updated, and is my advice for a 'standard' simplified DEB-TKTD model.
+
+DEBtox is described in the following references:
+- Jager T and Zimmer EI (2012). Simplified Dynamic Energy Budget model for analysing ecotoxicity data. Ecol Mod. 225:74-81 http://dx.doi.org/10.1016/j.ecolmodel.2011.11.012. (for accepted version and SI, see entry on https://www.debtox.info/papers_debtox.html)
+- Jager T (2025). Making Sense of Chemical Stress. Application of Dynamic Energy Budget Theory in Ecotoxicology and Stress Ecology. Version 2.3. Leanpub: https://leanpub.com/debtox_book. (first version in 2012)
+
+See also: https://www.debtox.info/about_debtox.html
+Walkthrough for the package: https://www.debtox.info/downloads/byom/html_debtox/walkthrough_debtox.html
+
+Version logging starts with 2.0 (earlier version have not been logged). Note that, in general, I would advice you to use the DEBtox2019 package instead of this one.
+===========================================================================
+
+Version 2.0 (28 April 2017)
+
+- Modified package so it runs with BYOM 4.0.
+
+Version 2.1 (2 June 2020)
+
+- Renamed the package: this is now called DEBtox classic, and will remain as is. For up to date DEBtox calculation, I now advise to use the DEBtox2019 package, which is based on DEBkiss and brought in line with the GUTS framework.
+- In derivatives, there are now some options (commented out code) to try different feedbacks for the TK equation.
+- I made a number of changes to make the calculations more efficient. Most importantly, the structure glo is now passed on to derivatives as an input rather than a global.
+- Make use of the new plotting function plot_tktd for making more-readable plots for calibration.
+- Small changes to ensure compatability with BYOM version 5.0.
+
+Version 2.2 (27 September 2020)
+
+- An error was repaired in general BYOM for the break-time functioning with ODEs, which slowed it down. Furthermore, type 4 can now be used with double time points (just like in openGUTS). Both fixes also require you to update to BYOM v. 5.2!
+- When running through time-varying exposure without breaking the time vector, size of the time step of the ODE solver is limited. This avoids the solver missing switches in exposure completely (which might happen with pulsed exposure). However, breaking the time vector is better in most cases.
+- Set the ODE solver by default to [0 3], which uses ode45 with very-much tightened tolerances. In some cases, sloppy tolerances will show an apparent optimum that only exists due to numerical problems in the solver. Care is needed with the selection of the most-appropriate solver for each problem!
+
+Version 2.3 (28 November 2021)
+
+- Modified scripts to work with the new BYOM version 6.0.
+- Corrected an error in call_deri that prevented use of Tlag in combination with time-varying exposure and breaking of the time vector.
+- Included the possibility to shift the reproduction model output to simulate a brood-pouch delay. This is useful for species like Daphnia where neonate release is counted (rather than egg production). 
+- Modified call_deri to initialise the matrices that collect the output (tout and Xout). This implies that they don't grow while looping through the exposure intervals. Theoretically, initialising should increase speed, but I cannot see that yet. However, it is more 'proper' coding, so I have included it.
+- Added a script byom_debtox_daphnia_auto to demonstrate the use of automatic_runs_basic. This is a helper function that first fits the basic parameters to the controls, and then fixes these while fitting the tox parameters to the complete data set (here with the parameter-space explorer).
+
+Version 2.3a (30 November 2021)
+
+- The profiling had an option setting in opt_prof that was modified. That did not produce an error; it just did not do what it was supposed to do. So the option 're_fit=1' was replaced be 'brkprof=2'.
+
+Version 2.4 (22 September 2023)
+
+- The hazard rate in derivatives is maximised to 111 d-1, which implies 99% mortality in 1 hour. This avoids the system becoming stiff under extreme parameter settings/forcings. This value assumes that all times are entered in days!
+- Tiny change in call_deri. When using an exposure scenario (with make_scen) and NOT breaking up the time vector (glo.break_time=0), call_deri sets smaller step size for the ODE solver. This makes sure that no concentration switches are missed. I now make an exception for very simple scenarios (Tev of length 2), as it is not needed and makes the solver rather slow. 
+- Added to call_deri the option to output hazard rates as Xout2. This is done when survival data are provided as time-to-death data in the main script. This still needs testing! Note that time-to-death data cannot be combined with additional calibration data in DATAx. Using time-to-death data sets requires using BYOM version 6.8 or newer.
+
+Archiving in GitHub (October 2026)
+
+- The last version 2.4 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).
+- Tiny change in the files to rename par.h0 and h0 to par.hb and hb (in byom_* files, call_deri and derivatives). Otherwise, the use of automatic_runs_basic in byom_debtox_daphnia_auto produces an error (it expects hb but gets h0 for background hazard rate).
+
