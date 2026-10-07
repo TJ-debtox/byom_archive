@@ -1,6 +1,16 @@
 # byom_archive
 This repository is the archive for the BYOM platform in Matlab (Bring Your Own Model). It archives the last version (v69a of 11 April 2025), with only a few small changes to the header texts of the m files (clarifying the licensing per file).
 
+## ⚠️ Project Status: Archived
+
+**This repository has been archived following the closure of business operations and is no longer actively maintained. The code is provided strictly "as-is".**
+
+### Bug Reports & Security Warnings
+Since this repository is locked (read-only), new issues or pull requests cannot be opened. However, if a critical bug or error is discovered in these MATLAB files in the future, a warning notice will be posted here:
+
+* **Future updates/warnings will be shared via:** [https://www.debtox.info/byom.html](https://www.debtox.info/byom.html)
+
+
 ## Licensing
 
 The BYOM project as a whole is licensed under the **GNU General Public License v3.0** (GPLv3) — see the [LICENSE](LICENSE) file in the root directory for the full terms. 
