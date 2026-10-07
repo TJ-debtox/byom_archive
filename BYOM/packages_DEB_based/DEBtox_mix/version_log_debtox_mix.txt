@@ -1,0 +1,26 @@
+Version log DEBtox_mix package for BYOM
+
+===========================================================================
+What is it?
+
+An experimental package for DEBtox-based binary-mixture analysis. The model follows DEBtox2019 (Jager 2020). This package requires BYOM v.6.8 or newer. See the 'about' text file in this directory for more information.
+
+Acknowledgements: this package was developed within the project "Classic and temporal mixture synergism in terrestrial ecosystems: Prevalence, mechanisms and impacts", funded from UKRI/NERC grant NE/S000224/2. The model used for mixture analysis is based on DEBtox2019.
+===========================================================================
+
+Version Beta 1 (1 April 2022)
+
+- First test version of the package.
+
+Version 1.0 (18 September 2023) 
+
+- Made sure that everything works with the Daphnia data set (rather than the, as of yet, unpublished sub-lethal data from the project).
+- Corrected an error in the mixture fitting scripts, in which the CIs on the TKTD plots where generated from the starting MAT file, rather than from the new fit. 
+- Small updates to bring the code in line with the latest version of the DEBtox2019 package.
+- Handling of the treatments in the data set (in data_all and in the scripts) was modified to make it more generally applicable, and to allow easy selection of different parts of the data set. When using your own data, take a careful look at data_all to see how the identifiers must be used!
+- Small change to combine_mat_files to only set glo2.n_cores to more than zero when engine_par is in the path. This is probably not needed, but it is good practice.
+- This code is pretty complex, so you may run into an error or strange results ...
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.0 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

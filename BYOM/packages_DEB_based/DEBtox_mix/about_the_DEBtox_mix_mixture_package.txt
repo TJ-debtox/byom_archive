@@ -1,0 +1,88 @@
+DEBtox_mix mixture package for survival data
+
+This is a first release of an experimental package that is not thoroughly tested yet, so please carefully scrutinise the results! Furthermore, properly analysing and interpreting mixture toxicity data with TKTD models is tough, really! This package is mainly provided to be transparant: the code as used in (upcoming) published papers, and conference presentations, is there to scrutinise. However, analyses of novel data sets is best left to the experts.
+
+I think a promising strategy for analysing mixture data sets is to first fit the single compounds with the parameter-space explorer, and use the parameter clouds to come up with an initial prediction for the mixture. After that, one can decide to make predictions, fit the single compounds together (generally only meaningful for damage addition), or fit the complete data set (incl. the mixture data, generally not recommended).
+
+The general approach for mixture TKTD has been explained in detail in Bart et al (2021): https://dx.doi.org/10.1021/acs.est.0c05282 (focussing on lethal effects with GUTS). To explain the mixture effect, two options are provided: damage addition or independent action. Currently, the only interaction implemented is a simple linear interaction factor. For addition this is implemented as: DwT = DwA + WB * DwB + IAB * DwA * DwB. Where IAB is the interaction factor (0 by default), and WB the weight factor for compound B (a measure of its effectiveness, relative to compound A). For independent action, no interaction factor is included, as there is no obvious way to implement it.
+
+The included example is for the PAHs pyrene and fluoranthene from from Jager et al (2010): http://dx.doi.org/10.1007/s10646-009-0417-z.
+
+-------------------------------------------------------------------------
+Notes for use of DEBtox_mix package
+-------------------------------------------------------------------------
+General notes and limitations
+• This package requires BYOM version 6.8 or newer. The functions for combining MAT files are now added to the engine folders, and the code for automatic_runs_basic modified to deal with regular and solvent controls.
+• This package is tough to use. Really! This is not recommended for a casual data analysis; you need to dive in and understand what is going on.
+• The model system is the simplified DEBtox2019 system, as described in detail in Jager (2020). This package is thus also based on the DEBtox2019 package for BYOM.
+• The data set used as example in this package is from Jager et al. (2010) and is for Daphnia magna exposed to two PAHs. This data set is limited for this type of analysis, mainly because there are no effects on body length, few treatments with partial effects on reproduction (hardly any reproduction in the mixture treatments), and limited/unclear response in survival. Especially the data for pyrene do not allow for a proper single-compound analysis. This data set is thus only used as illustration of the workflow here.
+• At this moment, this package can only accommodate binary mixtures. Extension to more compounds would be possible, in principle, but requires quite a bit of coding.
+• This package cannot deal with parameters that differ between data sets. At least, it cannot be done in the automated manner as used in the DEBtox2019 package, using specific identifiers for treatments that need different parameters. For the mixture package, the identifiers are to be coded to reflect the exposure profiles for each compound. It would still be possible to hard-code parameter changes for specific treatments into call_deri or derivatives.
+• Currently, the breaking up the time vector in call_deri is disabled. With mixtures, it becomes more troublesome to find the time points where exposure changes. If you are dealing with time-varying exposure, you may want to look carefully at the tolerances and time vector for the ODE solver in call_deri (and perhaps the choice of solver), to make sure that it provides useful solutions for the exposure profiles.
+
+-------------------------------------------------------------------------
+Workflow 1: single chemical analysis
+-------------------------------------------------------------------------
+
+Start in the folder mix_single_daphnia. This is basically the same model system as used in the DEBtox2019 package (ERA_special folder). The data set is included in the script file data_all, which contains the correct coding for the data set. This is the entire data set (both compounds, including the mixture treatments). In the analysis scripts, the correct parts for each analysis will be extracted. When using your own data, take care that you understand how the identifiers are defined and used in data_all and the main script! (check out the information in the header of data_all). Note that data_all is identical in each folder.
+
+> Fit single-exposure data
+
+The files byom_debtox_daphnia_PYR.m and byom_debtox_daphnia_FLU.m are for the single-chemical analyses. Running them both (which takes quite a bit of time, unless you have the parallel toolbox installed) provides a fit to the data. The analysis results (best parameter estimates, sample from parameter space, and analysis settings) are saved into a MAT file with the script name followed by a specification of the mode of action (moa) and feedback configuration (feedb), and _PS (for parameter-space explorer). This way, you can keep track of different optimisation runs. I did not check whether the configurations as set in the scripts are actually the best fitting ones. Profile refinement is here turned off to limit calculation time, but would generally be a good idea (set opt_optim.ps_profs = 1). 
+
+Note: the script file byom_showcal.m can be used to reproduce the results from a previous analysis, using a saved MAT file.
+
+> Combine the results for the single exposures
+
+Run the file combine_mat_files.m. Select the pyrene MAT file as compound A and fluoranthene as compound B (this is important!). Note the plot for the possibility of addition: it has two panels. First panel is for sub-lethal effects and the second for lethality. This file calls plot_grid_add_debtox2019.m and plot_grid_ind_debtox2019.m, which are now in the engine folders. Running combine_mat_files.m produces two MAT files: ADD_..._PS.mat and IND_....mat. 
+
+The ADD file contains a first estimate for the best parameters of the damage-addition mixture model, with possible ranges for each parameter. Note that the combination MAT file for addition is based on the similarity of parameter sets for zb x bb, so ignoring the lethality parameters for now. Also note that addition requires the pMoA and feedbacks configuration to be the same for the two compounds. For damage addition, the toxicity parameters for both compounds should be linked, so they should be fitted together (see next section). This MAT file can be used as starting point for that.
+
+The IND file contains the best parameters of the independent-action mixture model, with ranges for each parameter. When two compounds act completely independently, the single exposure should provide enough information to provide a mixture prediction. Fitting the two compounds simultaneously will not help. Therefore, the IND MAT file can be directly used to make mixture predictions (see later section).
+
+Note: if the basic parameters differ for the two compounds, combine_mat_files.m will put the mean value into the MAT file! In general: be very careful when the various parts of the data set result from separate experiments, and control behaviour differs.
+
+-------------------------------------------------------------------------
+Workflow 2: damage addition
+-------------------------------------------------------------------------
+
+> Addition 1: fit both compounds together
+
+Copy the MAT file ADD_..._PS.mat to the folder mix_binary_addition. Open the script byom_debtox_mix_addition_fit.m and run it. Select the ADD MAT file. This script is set up to use the basic parameters from the MAT file, and, for the toxicity parameters, use the search ranges as provided in the MAT file as input for the parameter-space explorer. There is no need to refit the controls, though this is possible (e.g., if the controls for the single-toxicant tests are slightly different and one likes to have a common fit).
+
+Note: fitting both lethal and sub-lethal effects, for two compounds under damage addition, requires optimisation of 7 parameters! The parameter-space explorer does work for that amount of free parameters, but it may easily fail (e.g., miss the global optimum or provide inaccurate CIs). Risk of failure has been limited by combining the MAT files for the single compounds, and using their results to minimise the search ranges. This limits the size of parameter space, but requires that the parameters are well-identified from the single-exposure tests. So, carefully check the results!
+
+> Addition 2: predict mixture effects
+
+The optimisation from the previous step produced a MAT file with the name of the script. Open the script file byom_debtox_mix_addition_pred.m and run it. Select the MAT file from the previous optimisation, and a prediction for the complete data set (and hence the mixture treatments as well) is produced. From the mixture prediction, one can judge whether the effects are well predicted or not without explicit interactions (some interactions are a logical consequence of the DEB rules). Serious deviations from the predictions can point at interactions (other than those forced by DEB).
+
+Note: it should be possible to accommodate different basic parameter values for the mixture prediction (when the mixtures were tested separately from the single compounds). The controls would then need to be fitted separately and the basic parameters manually included into the prediction script. The basic parameters would then also be used for the predictions of the single compounds, so perhaps exclude those data from the predictions.
+
+> Addition 3: fit mixture effects?
+
+It is also possible to fit the entire data set in one go. The script byom_debtox_mix_addition_fit.m can easily be set up to do this (there is commented-out code to help). It is also possible to modify this script to fit only the mixture treatments. This could be useful if only an interaction factor needs to be fitted. 
+
+-------------------------------------------------------------------------
+Workflow 3: independent action
+-------------------------------------------------------------------------
+
+> Independent 1: predict mixture effects
+
+Copy the MAT file IND_..._PS.mat to the folder mix_binary_indep. Open the script byom_debtox_mix_indep_pred.m. Run the script to make predictions.
+
+Note: it should be possible to accommodate different basic parameter values for the mixture prediction (when the mixtures were tested separately from the single compounds). The controls would then need to be fitted separately and the basic parameters manually included into the prediction script. The basic parameters would then also be used for the predictions of the single compounds, so perhaps exclude those data from the predictions.
+
+> Independent 2: fit mixture effects?
+
+It is possible to fit all data (two single exposure and the mixture treatments) simultaneously. The file byom_debtox_mix_indep_fit.m is set up to do just that. However, this is not generally advisable. It will fit all 10 model parameters on the complete data set, and this is way too much for the optimisation routine (see also the note above for damage addition; here it is even worse!). However, this script demonstrates how fitting with the mixture model system can be accomplished. Note that this script, by default, applies simplex optimisation (a local search method, that is relatively rapid). 
+
+-------------------------------------------------------------------------
+References
+-------------------------------------------------------------------------
+
+Bart S, Jager T, Robinson A, Lahive E, Spurgeon DJ, Ashauer R. 2021. Predicting mixture effects over time with toxicokinetic-toxicodynamic models (GUTS): assumptions, experimental testing, and predictive power. Environmental Science & Technology 55:2430-2439.
+
+Jager T. 2020. Revisiting simplified DEBtox models for analysing ecotoxicity data. Ecological Modelling 416:108904.
+
+Jager T, Vandenbrouck T, Baas J, De Coen WM, Kooijman SALM. 2010. A biology-based approach for mixture toxicity of multiple endpoints over the life cycle. Ecotoxicology 19:351-361.
+
