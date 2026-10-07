@@ -1,0 +1,33 @@
+Version log support_marecotoxpackage for BYOM
+
+===========================================================================
+What is it?
+
+Support package to reproduce the case studies in my chapter on modelling in the book "Marine Ecotoxicology".
+
+- Jager, T. (2016). Chapter 3: Dynamic modelling for uptake and effects of chemicals. In: Blasco, J.
+et al. (Eds). Marine Ecotoxicology: current knowledge and future issues. Academic Press, London,
+UK. Pages 71-98. https://doi.org/10.1016/B978-0-12-803371-5.00003-5
+
+See also: https://www.debtox.info/marecotox.html
+Version logging starts with 2.0 (earlier version have not been logged).
+===========================================================================
+
+Version 2.0 (27 April 2017)
+
+- Modified package so it runs with BYOM 4.0.
+
+Version 2.1 (9 August 2018)
+
+- Modified the survival-modelling example to use the files from the GUTS package v.2.2 (the 'sd_special' folder, to use the analytical solution for GUTS-RED-SD).
+
+Version 2.2 (1 December 2021)
+
+- Modified package so it runs with BYOM 6.0.
+
+Archiving in GitHub (October 2026)
+
+- The last version 2.2 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).
+
+
+
