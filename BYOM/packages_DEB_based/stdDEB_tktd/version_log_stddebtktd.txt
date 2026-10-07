@@ -1,0 +1,68 @@
+Version log stdDEB-TKTD package for BYOM
+
+===========================================================================
+What is it?
+
+Implementation of standard DEB with the TKTD module from DEBtox2019. This package requires use of AmP parameters for the species. In general, I would recommend using DEBtox2019, though, because of its simplicity. This package requires BYOM v.6.0 beta 8 or newer! This package needs a bit more testing, especially for pulsed exposure, and it is a rather complex piece of code. The paper presenting this model version is Jager et al (2023).
+
+See also: https://www.debtox.info/about_debtox.html
+See the 'about' text file in this directory for more information.
+===========================================================================
+
+Version BETA 0.1 (19 Nov. 2021) not released on the web page
+
+- First test version of the package without TKTD module.
+
+Version BETA 0.2 (22 Nov. 2021) not released on the web page
+
+- Various changes to the call_deri embryo section to make it work robustly. Starting point for the embryo calculations is now the analytical solution for a foetus without maintenance, rather than E0 from AmP implied properties. This should work better when re-fitting basic DEB parameters. Also added an event for embryos: when e goes below 0.1, the run is terminated. Otherwise, the embryo will probaby just continue shrinking till the end of the time vector.
+- Allowed interp1 to also extrapolate when e is outside of the range of the table values for E0 vs. e.
+
+Version BETA 1 (25 Nov. 2021) not released on the web page
+
+- Changed the event for embryos: when e goes below l (instead of some absolute threshold), the run is terminated. 
+- Allowed interp1 only in derivatives to also extrapolate when e is outside of the range of the table values for E0 vs. e. In call_deri, an error message when attempting to extrapolate is probably best, as something is going wrong then.
+- First test version of the package with TKTD module.
+
+Version BETA 2 (8 Dec. 2021) not released on the web page
+
+- When fitting maturity levels, there is the possibility that values of EHp or EHj are tried that are lower than EHb. In theory, puberty before birth is a possibility. However, in the code this is problematic. For now, I solve this by returning from call_deri immediately when EHp or EHp is lower than EHb, with an empty output. This will force transfer to return minloglik = +inf, so the optimisation knows that there is no point to look there.
+- Added Weibull mortality coefficient "a" to to all folders. When this parameter is fixed to 1, we have the normal constant hazard rate. Values other than 1 result in Weibull mortality.
+
+Version Beta 3 (13 Jan. 2022) first release on the web page
+
+- An error crept into call_deri for starting at a specified L0>Lb. The rB was not calculated anymore (to estimate a reasonable time vector for the simulation, this is now fixed.
+- Added a piece of code to allow a zero-variate data point for Lm. This may help avoid unrealistic size when re-fitting some parameters.
+- Allows glo.E0_calc to have multiple rows, one for each data set. Also added a third option: the egg costs can now also be calculated using f=1 always.
+- When using a specified L0, the code now throws an error if that L0 cannot be reached with the current values for the basic parameters. This prevents it getting stuck. However, this does not work yet for the case of acceleration, since we don't know beforehand what the maximum length will be.
+- The EPx calculation for certain profiles turned out to be very slow. This related to the hazard rate becoming extremely high in the 'rough exploration' of the MF range, in cases where there is no effect on one of the endpoints. This is solved by maximising the hazard rate to 111 d-1, which implies 99% mortality in 1 hour.
+- This package is aimed at TKTD analyses, but there was an initial package stdDEB without that module. This package is now provided in a sub-folder. It may be handy for other types of analysis.
+
+Version Beta 4 (21 April 2022)
+
+- The hazard rate in derivatives is maximised to 111 d-1, which implies 99% mortality in 1 hour. This avoids the system becoming stiff under extreme parameter settings/forcings. This value assumes that all times are entered in days!
+- Tiny change in call_deri. When using an exposure scenario (with make_scen) and NOT breaking up the time vector (glo.break_time=0), call_deri sets smaller step size for the ODE solver. This makes sure that no concentration switches are missed. I now make an exception for very simple scenarios (Tev of length 2), as it is not needed and makes the solver rather slow. 
+- Included the option to have body size data as wet weight, rather than physical length. This also involves the initial value: the parameter par.L0 is now interpreted as initial wwt when setting glo.len=0. From birth to reaching L0, it is assumed that par.f holds.
+- More options for using zero-variate data, such as egg wet or dry weight.
+- Renamed reference length glo.Lm_ref to glo.Lwm_ref to make it clearer that this is a physical length and not a volumetric one. For the same reason, par.L0 is now renamed to par.Lw0.
+
+Version 1.0 (22 June 2022)
+
+- Small error in call_deri: the checks on initial values (producing errors "The requested f is too low ...") should only be performed when initial values are based on the actual f. They are now switched on the first element of glo.E0_calc, rather than 'always on'.
+- Modified the parameter structure par in the script files to always have 5 values, and to maximise the two kappa values to 0.99 (values of 1 or higher are not only unrealistic, they may also cause errors). Also minimised them to 0.01, to avoid cases where there is no increase in maturity at all.
+- Minimised EHb and EHp to 1e-6 rather than 0. Zero does not make any sense (egg incubation time would be zero), and the events function won't catch birth or puberty since maturity starts at 0.
+- When metamorphosis is set after puberty, call_deri now immediately returns empty matrices, which transfer turns into a very unlikely fit value. The code already took metamorphosis at puberty when EHj>EHp, but this modification ensures that proper CIs for EHj are produced.
+- Made sure the time vector for finding birth is correct; it is now at least 0-1 days. There were cases where EHb=0 is tried in optimisation/profiling, and that led to a vector of 0-0 days, and hence an error.
+- Various checks on the properties of the egg-cost table are revised. Some errors could be turned into warnings, and force a return to the calling function (with empty output). This causes transfer to produce an infinitely bad goodness-of-fit mark. The warning is displayed on screen. 
+- Added the case study for the submitted manuscript in the folder Folsomia_casestudy. Run byom_showcal and select the MAT file with "moa" and "feedb" in the name to see the calibration results used for the MS.
+
+Version 1.1 (8 March 2023)
+
+- In derivatives, for the damage dynamics, for the surface:volume feedbacks, switches were applied on Xi(1) and Xi(2) when these are zero. These values are, however, reals and not booleans anymore. However, it worked because these values are truly zero when the switch value in glo.feedb is zero. In terms of code readability, this is not a good idea, and I replaced the switches on Xi by switching on glo.feedb. This is also in line with the SI for the stdDEB-TKTD paper.
+- As was done for the DEBtox2029 package, changed the byom_batch_epx script. In the previous version, it ran multiple exposure profiles with calc_effect_window_batch. Now, that functionality is moved to the script byom_batch_effect. The byom_batch_epx now uses the new function calc_epx_window_batch. This calculates explicit EPx for each exposure profile. If CIs are requested, they are only generated on the lowest EPx (for each endpoint) for each profile. This is way more calculation efficient than calculating CIs across the entire profile.
+- Spotted an error in derivatives.m. This affected calculations with multiple studies, where glo.E0_calc was defined differently for different studies and exposure scenarios are used with make_scen. Switching for the correct value in glo.E0_calc was based on the actual exposure concentration, rather than on the scenario number. This meant that the wrong value from glo.E0_calc can be used, or that an error is produced. This is now corrected.
+- The basic sdtDEB folder was adapted slightly such that it can also work with multiple rows for glo.E0_calc (separate values for separate studies). However, this needs some care setting up (using correct identifiers and defining - dummy - exposure scenarios with make_scen).
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.1 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

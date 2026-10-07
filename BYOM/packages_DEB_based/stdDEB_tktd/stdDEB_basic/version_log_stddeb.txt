@@ -1,0 +1,25 @@
+Version log stdDEB package for BYOM
+
+Version BETA 1 (19 Nov. 2021) not released on the web page
+
+- First test version of the package.
+
+Version BETA 2 (22 Nov. 2021) not released on the web page
+
+- Various changes to the call_deri embryo section to make it work robustly. Starting point for the embryo calculations is now the analytical solution for a foetus without maintenance, rather than E0 from AmP implied properties. This should work better when re-fitting basic DEB parameters. Also added an event for embryos: when e goes below 0.1, the run is terminated. Otherwise, the embryo will probaby just continue shrinking till the end of the time vector.
+- Allowed interp1 to also extrapolate when e is outside of the range of the table values for E0 vs. e.
+
+Version BETA 3 (25 Nov. 2021) not released on the web page
+
+- Changed the event for embryos: when e goes below l (instead of some absolute threshold), the run is terminated. 
+- Allowed interp1 only in derivatives to also extrapolate when e is outside of the range of the table values for E0 vs. e. In call_deri, an error message when attempting to extrapolate is probably best, as something is going wrong then.
+
+Version BETA 4 (8 Dec. 2021) not released on the web page
+
+- When fitting maturity levels, there is the possibility that values of EHp or EHj are tried that are lower than EHb. In theory, puberty before birth is a possibility. However, in the code this is problematic. For now, I solve this by returning from call_deri immediately when EHp or EHp is lower than EHb, with an empty output. This will force transfer to return minloglik = +inf, so the optimisation knows that there is no point to look there.
+
+Version 1.0 (now only available as part of the stdDEBtktd package
+
+- An error crept into call_deri for starting at a specified L0>Lb. The rB was not calculated anymore (to estimate a reasonable time vector for the simulation, this is now fixed.
+- Added a piece of code to allow a zero-variate data point for Lm.
+

@@ -1,0 +1,34 @@
+Notes on the stdDEB-TKTD package
+
+This package implements standard DEB, as used for the add-my-pet (AmP) library. It attaches the TKTD module of DEBtox2019, ignoring the potential impact of reserve dynamics on toxicokinetics and damage dynamics. Basic parameters for a species can be taken from AmP, although these will seldom provide a good-enough fit to the control data. Some re-fitting will thus be needed to avoid bias in the analysis of the treatments (which are deviations from the control, and thus require a close control fit to be properly identified). 
+
+All details of the model are available in the published paper:
+Jager T, B Goussen and A Gergs (2023). Using the standard DEB animal model for toxicokinetic-toxicodynamic analysis. Ecol Modell 475:110187. https://doi.org/10.1016/j.ecolmodel.2022.110187 open access.
+
+In general, I would recommend using the DEBtox2019 package for TKTD analysis of sub-lethal endpoints. In most cases, the greater complexity of (using) stdDEB does not lead to better performance in ecotoxicology or risk assessment. However, it is good to have this package available in BYOM, and it allows the use of the AmP library and closer connection to the activities of the standard-DEB community.
+
+Warning: using this package correctly is tough, really tough! The package is provided as part of BYOM to be completely transparent about the methods used for producing results (e.g., in publications). However, using this package yourself requires considerable expertise in stdDEB as well as the workings of BYOM. It is very easy to run into errors and nonsensical results.
+
+For calibration, three files are provided, using the same data set:
+- byom_stdebtktd_Daphnia_basic. A basic file. Data set is included into the script, using mean responses. Only one MoA-feedback configuration can be run. Controls are fitted first, treatments second (with basic parameters fixed), using automatic_runs_basic. 
+- byom_stdebtktd_Daphnia_auto. Data set is included into the script, using mean responses. More MoA-feedback configurations can be run, which are compared at the end. Controls are fitted first, treatments second (with basic parameters fixed), using automatic_runs_debtox2019. 
+- byom_stdebtktd_Daphnia_ERA. Data set prepared in external file (data_FLU_Dmagna.m), which is handy when using multiple data sets for calibration or when switching calibation and validation data sets. The raw data for the individual replicates are used, which requires some data preparation. Solvent control will be shown separately. This also allows to remove zeros from the reproduction data (see Jager et al, 2021, https://doi.org/10.1002/ieam.4476). Controls are fitted first, treatments second (with basic parameters fixed), using automatic_runs_debtox2019. This file can be nicely used with the validation script byom_stdebtktd_Daphnia_ERA_validation.
+
+For validation, an additional is provided, using the saved MAT file:
+- byom_stddebtktd_Daphnia_ERA_validation. File organised along the same lines as the ERA calibration script. However, it only fits the basic parameters, on the control treatments of the provided data set. The toxicity parameters, and model settings, are taken from a saved MAT file.
+
+For post-analyses, several additional generic scripts are provided, using the saved MAT file. These are generic, in the sense that they don't include chemical- or species-specific settings. Everything is taken from the saved MAT file:
+- byom_showcal. Shows the results from a previous calibration.
+- byom_pred_epx. Predict multiplication factors for exposure profiles (e.g., FOCUS).
+- byom_batch_epx. Batch-wise prediction for sequentially running through multiple exposure profiles.
+- byom_testdesign. Simulating effects dues to new exposure profiles, intended for test design.
+
+Notes
+- All these script files save the data set in a separate MAT file. This makes it easier to reconstruct a previous calibration using the script byom_showcal.
+- There are two derivatives functions. The derivatives_pre is for the egg costs and initial length calculations. One can start at birth, or at a specified length (larger than length at birth).
+- This package requires BYOM v. 6.0 Beta 8 or newer.
+- When using multiple data sets, you must define exposure scenarios with make_scen, for ALL scenarios. Make sure the first data set uses identifiers 0-99, the second 100-199, etc. Otherwise, the initial values for the first study will be used.
+
+Sub-folders
+- The sub-folder Folsomia_casestudy contains the files to reproduce the case study as used for the manuscript. Run byom_showcal and select the MAT file with "moa" and "feedb" in the name to show the calibration results as used for the MS.
+- The sub-folder stdDEB_basic contains files for stdDEB without the TKTD module, which may be handy for some non-ecotox analyses.
