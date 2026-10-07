@@ -1,0 +1,103 @@
+Version log GUTS package for BYOM
+
+===========================================================================
+What is it?
+
+This package contains both simple and more elaborate GUTS implementations. Easy to adapt, and can accommodate time-varying concentrations. Includes a script to produce synthetic data sets.
+
+See also: https://www.debtox.info/about_guts.html
+Walkthrough for the package: https://www.debtox.info/downloads/byom/html_guts/walkthrough_guts.html
+See the 'general_info...' text file in this directory for more information.
+
+Version logging starts with 2.0 Beta 1 (earlier version have not been logged).
+===========================================================================
+
+Version 2.0 Beta 1 (02/03/2017)
+
+- The earlier GUTS1 and GUTS2 package have been merged in 2.0 beta 1. The files in the main folder are the ones to start with (reduced model, constant exposure, analytical solution, only pure SD and IT). The other folders contain the more fully featured 'reduced' and 'full' models.
+- This version is made fully compatible with GUTS version 4.0 Beta 2, and the examples make use of several of the new features.
+- The naming of the symbols and the model structure now closely follows the new definition as will be used in the GUTS e-book (to be released end of 2017). The model is still the same, and all analyses types that could be performed with the old version are still possible. The examples provided will cover the most common types.
+- In the full model, there is an option to set damage repair to fast. This effectively implies that the actual internal concentration is used as dose metric.
+- The derivatives.m for the full and reduced model contain the code to include time-varying concentrations. This is demonstrated in the diazinon case studies.
+- For the GUTS e-book, we decided that the log-logistic distribution should be the standard for GUTS. This is therefore also the case in this package. In call_deri, you can still find the option for the log-normal.
+- The options for the ODE solver have been moved to globals so they can be set in the script.
+- For IT and the mixed model (IT and SD combined), a long time vector is needed for the calculations. This was earlier captured in prelim_checks, but is now placed in call_deri for the GUTS package.
+- The starting values estimator has been updated and should work well for the simples cases (reduced model, no dynamic damage stage) and constant exposure.
+
+Version 2.0 Beta 2 (2017)
+
+- Several errors in startvals.m that led to errors for some data sets. Also added a short range for hb. Also corrected the call to startvals in all scripts apart from byom_guts_start. 
+- Corrected the legends for the dieldrin cases: should be ug/L and not uM.
+- Forgot to change "clear all" to "clear, clear global" in several of the example scripts.
+- Removed the use of the log-normal distribution in call_deri, as we will use the log-logistic as the GUTS default.
+
+Version 2.0 (27 April 2017)
+
+- No additional changes to the beta 2 version.
+- Note: when using the likelihood-region method to make confidence intervals for the LC50, percentiles were taken. This should have been min-max, which leads to somewhat wider intervals on the LC50. This is now corrected in BYOM 4.1.
+
+Version 2.1 (01 February 2018)
+
+- Restructured the package into full and reduced, and included a still somewhat experimental part in a separate directory (see next point). Many small changes in comments and layout.
+- Added a series of files that include a more extensive analytical solution for the TK+damage dynamics. This can be used with constant exposure, but also for pulsed exposure (as long as the total time vector can be divided into a limited number of episodes with a constant concentration). This latter option makes use of the new function make_te, which creates a global that carries the information on the forcing events (see example files in the 'experimental' directory).
+- The full model now also makes use of the analytical solution for constant exposure. 
+- Increased the long time vector that needs to be calculated for IT and the mixed models from 100 to 200, which should be sufficient for almost all cases. This is now a parameter in call_deri, so when you model very long time periods (e.g., >20 days), this may need to be extended.
+- Plot_guts now produces some warnings to let you know that some plots may need careful interpretation due to NaNs in the data, missing animals, or multiple data sets.
+- Plot_guts now makes a predicted vs observed plot for the survival probability, and also calculates a significance test for the fit (when plotting expected vs. predicted deaths, and requires the statistics toolbox).
+- Modified the calculation of LC50s and multiplication factors to work with the make_te version of an exposure profile (defining multiple episodes with constant concentration within an episode). Changes are made in the general BYOM engine, but only affect the GUTS calculations.
+
+Version 2.2 (07 August 2018)
+
+- The experimental part from the previous version is now made into the main part. In general, it seems like a good idea to keep the hazard integration out of derivatives and simplefun. The main advantage is flexibility and transparency of the code, and easier to make use of analytical solutions for the TK/damage model (even under some time-varying exposure scenarios and when using the full model). Downside is that the analytical solution for SD under constant exposure is now not used.
+- For GUTS analyses, a longer time vector is made in call_deri automatically. This is needed for IT to catch the location where the damage level reaches it maximum. For the 'standard' directory, the hazard integration is also done in call_deri, which requires a time vector with more detail. This minimum time vector was set to 200 elements in previous versions but is now 500 in call_deri.m (this does not seem to slow down the analysis much). It is automatically extended when a long time-varying exposure profile needs to be calculated (e.g., a FOCUS profile). For long constant exposure scenarios, or long scenarios with only a few events, it makes sense to increase this value.
+- In call_deri for IT, the maximum damage over time is now located in a more efficient manner.
+- Simplefun now includes an option to perform fast or slow kinetics for the reduced GUTS models (kd to infinity or zero). This is activated with a global (glo.fastslow set to 'f' or 's'). Note that this is only done for simplefun so when glo.useode=0 (which, for fast and slow kinetics, can now also be used with splined exposure profiles!). Slow kinetics is a bit confusing, as mw should now be interpreted as mw/kd and bw as bw*kd ...
+- Note that the definition of time-varying concentrations has changed in the main BYOM engine, which so far mainly affects the GUTS package. Code for extraction of exposure concentrations in derivatives and simplefun is now more compact. For more information, see the BYOM version log.
+- The file start_vals (for start value estimation) has been moved to the engine and renamed start_vals_guts. However, it is likely that this function will be removed in future releases as the parameter-space explorer (as under development for the standalone GUTS software) generally has less calculation time, and as added bonus gives confidence intervals on parameters as well as a sample from the joint CI for intervals on model predictions. This function is not yet included in this release as it needs some tweaking (and some work to get it into the generic setting of BYOM so it also works with other models than GUTS-RED models).
+- Only the files byom_guts_start and byom_guts_extra (in the folder standard/reduced) have full commenting for every section of the code. In the other files, the comments are limited to a few lines.
+
+Version 2.3 (07 September 2018)
+
+- In BYOM v. 4.2b, a new interpolation method was introduced (type 4, a linear forcing). This is now used with an analytical solution for the reduced and full GUTS models in the directory standard. This leads to faster, and generally more accurate, results than the combination of splining (type 1) and the ODE solver.
+- Analytical solutions are now implemented for the full model in the standard directory as well: dealing with static renewal and linear forcing (make_scen types 2, 3 and 4 can now be used). Thanks to Bob Kooi for running the ODEs through Maple for me! The analytical solutions for the full model are not well tested, so it does not hurt to run the ODE solver as well to make sure the result is correct!
+- Implementation of a fast way to calculation LPx values (calc_conf_lpx_lim), at the expense of generality: this only gives proper results for the standard GUTS models (full and reduced), such as provided in the standard directory! As soon as you modify the models, it might not give correct results anymore. It is not included in the engine, but in the GUTS directory where it will work properly.
+- Also, a faster way to calculate LCx values in calc_conf_lcx_lim. Again, this will only work with the standard model (in this case only the reduced model). It applies the analytical solution for the LCx (IT) or for the survival probability (SD).
+- The calculation of the LCx and LPx contained a bias in case background hazard is high and the exposure period is very long. See the BYOM version log for details. This has been fixed.
+- Small change in the analytical solution for SD in the sd_special directory: it could be simplified as we only deal with a single exposure concentration at a time. This does not affect the output in any way.
+- The way that sampling error was included for the frequentist (likelihood region) approach in calc_conf was only approximate. It is now disabled until I find a correct way to do it. A warning is put on screen. If you like to calculate intervals with sampling errors, use the Bayesian approach (but make sure your posterior is proper!).
+- I added files to do the calculations for the ring test. If you run them as is, it will be fast but no CIs will be calculated. Depending on the analysis, this can take quite a bit of time. You can play with the slice sampler for a Bayesian analysis, or the likelihood region method. The settings for these are set rather crudely; the settings that I used for my last run can be read from the PDF downloadable from http://www.debtox.info/book_guts.html (bottom of the web page).
+- The goodness of fit tests are removed from plot_guts. They need to be checked for the cases where replicated treatments are used, and they seem to be of limited use in judging a fit anyway.
+- Corrected an error in plot_guts in the predicted-vs-observed plot when using replicated data (it was plotting the observations, one replicate versus the other).
+- When using replicates, plot_guts now only makes a plot of death vs time in case the initial number of individuals is the same in the different replicates of that treatment. In the previous version, I used the mean number of individuals for the predicted deaths, but this makes the plot impossible to interpret. Overall, I need to look closer at the use of replicates (and how to plot them), which will be on my todo list.
+
+Version 3.0 (29 May 2020)
+
+- Modified call_deri, derivatives and simplefun to optimise speed (see the BYOM version log). When using the ODE solver, the solver now runs through the time vector piecewise: each interval between two events (as specified in the exposure scenario) is run separately, and the solver is restarted for the next interval. This avoids having the ODE solver run over time points where the exposure is discontinuous.
+- Renamed calc_conf_lcx_lim and calc_conf_lpx_lim to calc_lcx_lim and calc_lpx_lim. Combined their option structures and renamed to opt_lcx_lim. Switched positions of opt_lcx_lim and opt_conf in their calls. These functions are extended to allow the parameter-space explorer as source of information to construct CIs. Further, they now use read_scen when possible instead of make_scen, which is more memory-efficient (though not really time-saving). Added the standard Matlab waitbar. Note that these changes mean that your old scripts may not work anymore.
+- Modified the standard directories to ONLY use the analytical solutions in simplefun. This is generally the best method to use. For using the ODE solver (nice for extensions of the model), separate directories are provided under the header 'experimental'. The latter files are primarily intended as starting point for your experimentation (when the analytical solutions do not apply anymore).
+- The scripts for the diazinon case study demonstrate how to use glo.LabelTable to make nice legend texts for the treatments (rather than using their identifiers).
+- Please note that the function calc_conf_lc50 has been discontinued. This is replaced by the more general functions for calculations of ECx and EPx values: calc_ecx and calc_epx. 
+- The directory standard\ringtest allows you to perform the ringtest calculations. However, it also shows some nice features! These scripts can read the text files used for openGUTS (the openGUTS example files are included), and use the Matlab file GUI for selecting files. Next, it asks whether you want to perform an SD or IT analysis with a GUI element. Also for selecting a profile, the GUI element is used. The concentration unit from the data file is automatically used for the output.
+
+Version 3.1 (26 September 2020)
+
+- An error was repaired in general BYOM for the break-time functioning with ODEs, which slowed it down. Furthermore, type 4 can now be used with double time points (just like in openGUTS), as demonstrated for the diazinon example. This also requires you to update to BYOM v. 5.2!
+- For the 'experimental' folder (which uses an ODE solver), limiting the ODE step size in call_deri is now only done when needed (under time-varying exposure and when NOT breaking up the time vector).
+
+Version 3.2 (29 November 2021)
+
+- Adapted the package to work with BYOM 6.0.
+- Included use of a helper function automatic_runs_basic/guts to aid sequential analysis: fit background hazard on control data, and keep fixed while fitting the tox parameters to the entire data set. This is illustrated in the file reduced\byom_guts_parspace.m and especially in the new ERA_special package. This latter package can be especially handy for more-or-less routine application in risk assessment.
+- Modified call_deri for the directories that use the ODE solver. When breaking up the time vector, tout and Xout are pre-initialised with NaNs, and the output per exposure period is placed in the correct location every round of the loop. This should increase speed, since variables do not 'grow' anymore. However, with the diazinon case study, no measurable speed increase was found. Nevertheless, it is more 'proper' coding.
+
+Version 3.3 (21 September 2023)
+
+- Small change in the sd_full_special folder: maximise the hazard rate to 111 d-1. This is to avoid the system becoming stiff, and thereby extremely slow. This is not needed in the other folders since the hazard rate due to chemical stress is calculated in call_deri in a different manner.
+- Small change in call_deri for several folders. The events in the exposure profile where added to the time vector, but this is now only done with the event times that are within the requested time vector for the simulation. This avoids numerical inaccuracy when someone uses an exposure scenario with an end time point much larger than the data set (or asking for an ECx at a very high time point).
+- Tiny change in call_deri for several folders (only when using an ODE solver). When using an exposure scenario (with make_scen) and NOT breaking up the time vector (glo.break_time=0), call_deri sets smaller step size for the ODE solver. This makes sure that no concentration switches are missed. I now make an exception for very simple scenarios (Tev of length 2), as it is not needed and makes the solver rather slow. 
+- Modified call_deri in all folders to output the (pseudo) hazard rate for Xout2, when there is a data set with time-to-death values (rather than number of survivors over time). Note that this way of coding implies that we cannot use additional data sets (as DATAx) for calibration (prelim_checks will throw an error if you try). The file standard\reduced\byom_guts_ttd_test.m demonstrates how to use time-to-death data.
+- Small changes in the standard\ERA_special folder in the files byom_guts_dieldrin and byom_guts_flex. These worked fine when SEL was [1 2], so fitting both SD and IT. However, when setting SEL to only one death mechanism, an error was produced for plotting and post analyses, as these were hard-coded to run through both SD and IT. This is now made flexible, and dependent on the setting in SEL.
+
+Archiving in GitHub (October 2026)
+
+- The last version 3.3 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

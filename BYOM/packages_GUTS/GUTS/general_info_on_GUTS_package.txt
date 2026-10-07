@@ -1,0 +1,41 @@
+> When to use the GUTS package
+
+For rather standard and routine analyses with reduced GUTS models (pure SD or pure IT), I would generally advice to use the openGUTS software. That software is available as standalone executable and as Matlab version from https://openguts.info/download.html. BYOM needs a GUTS package as well, of course, but the openGUTS software is more user friendly and usually faster. The BYOM version is mainly intended for non-standard analyses that cannot be done with openGUTS. For example, the BYOM version allows to use Bayesian MCMC sampling, missing/removed animals, full GUTS, etc. Furthermore, the files are easily extended for more complex models (e.g., TK models with metabolites). In this package, you can find three main directories: standard, experimental and sim_guts. 
+
+> More background on GUTS
+
+- https://www.debtox.info/about_guts.html
+- Jager T, C Albert, TG Preuss and R Ashauer (2011). General Unified Threshold model of Survival - a toxicokinetic-toxicodynamic framework for ecotoxicology. Environ Sci Technol 45:2529-2540. http://dx.doi.org/10.1021/es103092a. (the accepted version and SI can be obtained from the entry on https://www.debtox.info/papers_survival.html).
+- Jager T and R Ashauer (2025). Modelling survival under chemical stress. A comprehensive guide to the GUTS framework. Version 3.1. Toxicodynamics Ltd., York, UK. Available from Leanpub: https://leanpub.com/guts_book (first version in 2018) 
+
+> Standard directory
+
+The files in the standard directory will all use analytical solutions for TK and damage dynamics (and background mortality) in simplefun (thus, there is no derivatives function in these directories). Survival probability is always calculated in call_deri (for SD using numerical integration). They allow for reduced GUTS and full GUTS, and also pure SD, pure IT and their combination (GUTS proper). This provides a general platform that can be used for most routine analyses.
+
+These files can also apply an analytical solution for the case of time-varying exposure, as long as the exposure profile is specified using make_scen as type 2, 3 or 4 (only smooth splining requires the ODE version of the model). These files thus also allow specifying an exposure scenario as a linear forcing; this implies linear interpolation in a concentration time series. Such exposure profiles must be made with the function make_scen (as demonstrated in the diazinon examples). Note that, from version 2.3, also the full model can be run with analytical solution for TK plus damage (but this has not been thoroughly checked yet, so best to test your results with the ODE version as well!).
+
+The standard directory contains five sub-directories: reduced, full, ringtest, ERA_special  and sd_red_special. The first two are self-explanatory. The ringtest directory allows to perform all calculations from the ring tests, extended with the test files used for the openGUTS software. The ERA_special contains a more tricked-out version of the calibration script for the reduced model, and separate scripts for test design, validation and LPx calculation (using the saved MAT file from the calibration). The latter two folders also demonstrate a new feature: input files for openGUTS (text files) can be read into BYOM as well. The sd_red_special directory focusses on RED-SD only. The difference with the standard files is that survival is calculated analytically in simplefun, rather than using numerical integration. This only works under constant exposure, but is then extremely fast. For the full model, an analytical solution would be more tricky. Therefore, only the reduced model is provided here.
+
+> Experimental directory
+
+The files in this directory all use the model specified as system of ODEs. This directory contains three sub-folders: reduced_ODE, full_ODE and sd_full_special. These are split from the analytical solution since the call_deri needs to be quite different (to put them all into one file would require quite a bit of if-then-else switching, which would not be very transparent). For exposure types 2, 3 or 4, the ODE solver is run piecewise, which is more robust.
+
+In almost all cases, I would recommend NOT to use these files. The main reason is that they are considerably slower than the files in the standard directory, which use analytical solutions. However, the files in the experimental section are specifically intended as starting point for your experimentation (when the analytical solutions do not apply anymore). The model system in derivatives can easily be extended to more state variable, more parameters, different forms of kinetics, etc. Since an ODE solver is used, all forms of time-varying exposure can be accommodated.
+
+The folder sd_full_special contains the full model, where survival is calculated along with the other ODEs in derivatives. 
+
+> Sim_guts directory
+
+The sim_guts directory contains files to produce simulated data sets for GUTS-RED cases. These files were used to create simulated data sets for the ring test. I am not sure if they are still particularly useful, but I include them nonetheless.
+
+> Further notes
+
+Starting from version 3, the parameter-space explorer can be used for automatic optimisation and CI generation. This is demonstrated in the standard/reduced directory (byom_guts_parspace) and in the ringtest and ERA_special directories. This is the optimisation algorithm from openGUTS that is translated for BYOM in version 5.0.
+
+The full model can include a non-zero initial concentration, in the parameter Ci0. An example is provided in the file for cadmium. If this parameter is not specified, Ci0 is set to zero (this is the case for the diazinon example). The reduced model can also accommodate non-zero initial scaled-damage levels, although this seems hardly useful in practice (since we cannot measure damage).
+
+To start with GUTS, look into the 'standard' directory and open the script byom_guts_start.m. For more analysis options, look at byom_guts_extra.m. These files demonstrate several analysis options and provide a lot of comments explaining what is going on (the other files will have fewer comments).
+
+The GUTS package and BYOM have become rather complex and are difficult to maintain. Therefore, errors and unexpected results may occur. Please be aware of that! I do apologise for these issues, but I accept no liability for them in any way. If you run into problems, notify me and I will look into it ASAP.
+
+With the update to version 3.0 of this package, the functions for calculating LCx and LPx have changed (and also their calls are different now). Therefore, your old scripts may need some attention before they run properly with this version, and with version 5.0 of BYOM (the old GUTS scripts will yield errors with the new BYOM version, and vice versa!). The move to BYOM 6.0 brought some more changes to version 3.2 of the package, also affecting some of the calls for LPx again. Sorry for that!
