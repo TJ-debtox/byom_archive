@@ -1,0 +1,44 @@
+Version log GUTS-immobility package for BYOM
+
+===========================================================================
+What is it?
+
+An experimental package for GUTS immobility, expanding GUTS to distinguish between (reversible) immobility and (irreversible) death. A publication explaining the model is upcoming (see preprint URL below). This package is very difficult to use as there are many options to configure the model, and because many parameters need to be fitted. Also, calculations are very time consuming. So this package is recommended for experts only. This package requires BYOM v.6.9 or newer.
+
+General note: working successfully with this package is VERY complicated! Quite a few parameters need to be fitted simultaneously, and this requires VERY careful selection of the parameter search ranges. Also, optimisation will be very slow, especially when you do not have Matlab's parallel toolbox and a large number of cores on your computer. This package is mainly made available to provide optimal transparancy for the upcoming publication, and as a starting point for further development.
+
+The paper that describes the modelling framework is available as preprint from: http://dx.doi.org/10.2139/ssrn.4872917. The SI is available from: https://www.debtox.info/downloads/my_papers/GousJage_equations_si.pdf.
+===========================================================================
+
+Version Beta 1 (1/09/2020) not released on the web page
+
+- This is the first logged release of this package. For internal use only.
+
+Version Beta 2 (8/9/2020) not released on the web page
+- Added options for using the parspace explorer more efficiently, and in an automated manner. Included choice/settings for the ODE solver to be used in call_deri (similar to used in the DEBtox packages).
+- Modified setup_setting in engine\parspace to limit SETTINGS_OPTIM.crit_table. The total joint CI becomes very large for 6/7 free parameters, and we're not too interested in that. Limiting to the value for df=5 seems appropriate. However, the blue points are no longer the joint CI.
+
+Version Beta 3 (27/9/2020) not released on the web page
+
+- In call_deri, use a long time vector for IT, in all cases. Since IT needs the maximum of damage, this is safer than relying on the points that are normally returned by the ODE solver (for calibration only the time points in the data set and the events in the exposure scenario). For both SD and IT, the step size of the ODE solver will be limited when setting break_time to zero. This avoids the ODE solver stepping over a pulse.
+- Modified BYOM to allow for double time points, as in openGUTS. The data_treatment script now make use of that option. This is more accurate and more calculation efficient.
+- After much playing around with the settings for the ODE solver, I think it is safest to use glo.stiff = [2 1] for preliminary runs and glo.stiff = [0 3] for refined ones. In some cases, using [2 0] and [0 1] can produce nonsense (indicating a local minimum that only exists due to numerical inaccuracy of the solver).
+
+Version Beta 4 (14/02/2024) not released on the web page
+
+- Modified to work with BYOM v. 6.0 (and thus also with the parallel toolbox).
+- Moved some code to automatic_runs_... to simplify the main scripts. There is now a basic version, and an automated version. The latter can run multiple death mechanisms and configurations, and returns a table with the result. That way, it is easy to look for the best model for the data at hand.
+- Modified call_deri for the directories that use the ODE solver. When breaking up the time vector, tout and Xout are pre-initialised with NaNs, and the output per exposure period is placed in the correct location every round of the loop. This should increase speed, since variables do not 'grow' anymore. However, no measurable speed increase was found so far. Nevertheless, it is more 'proper' coding.
+- Small change in derivatives: maximised all hazard rates to 111 d-1. This is to avoid the system becoming stiff, and thereby extremely slow. 
+- Tiny change in call_deri. When using an exposure scenario (with make_scen) and NOT breaking up the time vector (glo.break_time=0), call_deri sets smaller step size for the ODE solver. This makes sure that no concentration switches are missed. I now make an exception for very simple scenarios (Tev of length 2), as it is not needed and makes the solver rather slow. 
+- Changed the category 'healthy' to the more-accurate 'active'. This also involved changes in parameter subscripts, as well as in a range of engine functions. The global glo.loc_h is also renamed to glo.loc_a.
+
+Version 1.0 (09/04/2024), first public release
+
+- Note that this version requires BYOM version 6.9 or newer!
+- Added byom_guts_showcal.m to the package, with settings that allow reproduction of the calibration from a saved MAT file. This also involved a few changes in the calibration files: save the DATA array as well, and define the name of the analysis before saving. Note that this not work perfectly with the 'auto' calibration file, as that one adds the model configuration in the name of the MAT file. If a DATA file is not found, the GUI will appear so you can manually select one.
+- In the calibration files, use plot_tktd with an empty matrix instead of par_out. This avoids the warning that the parameter ranges do not match (as the parspace explorer modifies the ranges to provide new search bounds for a subsequent run).
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.0 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

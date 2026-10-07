@@ -1,0 +1,29 @@
+Version log Calanus acute package for BYOM
+
+===========================================================================
+What is it?
+
+This package contains the files needed to reproduce the results of the paper "Dynamic links between lipid storage, toxicokinetics and mortality in a marine copepod exposed to dimethylnaphthalene" (Jager et al., 2017). Standard GUTS analyses, TK analysis with a one- and two-comp. model, and combined GUTS and two-comp. TK analysis.
+
+- Jager T, Øverjordet IB, Nepstad R and Hansen BH (2017). Dynamic links between lipid storage, toxicokinetics and mortality in a marine copepod exposed to dimethylnaphthalene. Environ Sci Technol. 51(13):7707-7713. http://dx.doi.org/10.1021/acs.est.7b02212 (accepted version and SI can be found with the entry on https://www.debtox.info/papers_survival.html).
+===========================================================================
+
+Version 1.0 (16/06/2017)
+
+- First version of this package, for BYOM 4.01
+
+Version 1.1 (08/08/2018)
+
+- Tiny changes to make the package work with BYOM 4.2, and some small updates in the GUTS calculations, to make it more in line with the complete GUTS package for BYOM.
+
+Version 1.2 (2 December 2021)
+
+- Modified package so it runs with BYOM 6.0.
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.2 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).
+
+
+
+

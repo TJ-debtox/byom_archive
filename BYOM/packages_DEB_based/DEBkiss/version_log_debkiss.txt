@@ -1,0 +1,44 @@
+Version log DEBkiss package for BYOM
+
+===========================================================================
+What is it?
+
+A general version of the DEBkiss model, ready-to-use as starting point for your own analyses. DEBkiss is a simplified version of the standard DEB animal model, ignoring the reserve compartment and not following maturity. DEBkiss is described in the following references:
+- Jager T, Martin BT and Zimmer EI (2013). DEBkiss or the quest for the simplest generic model of animal life history. J Theor Biol 328:9-18. http://dx.doi.org/10.1016/j.jtbi.2013.03.011. Accepted version and SI available from https://www.debtox.info/debkiss_appl.html.
+- Jager T (2026). DEBkiss. A simple framework for animal energy budgets. Version 3.2. Leanpub: https://leanpub.com/debkiss_book. (first version released in 2014)
+
+See also: https://www.debtox.info/about_debkiss.html
+Walkthrough for the package: https://www.debtox.info/downloads/byom/html_debkiss/walkthrough_debkiss.html
+
+Version logging starts with 2.0 (earlier version have not been logged).
+===========================================================================
+
+Version 2.0 (28 April 2017)
+
+- Modified package so it runs with BYOM 4.0.
+
+Version 2.1 (2 June 2020)
+
+- I made a number of changes to make the calculations more efficient. Most importantly, the structure glo is now passed on to derivatives as an input rather than a global, and using read_scen in derivatives rather than make_scen to read time-varying exposure scenarios.
+- Make use of the new plotting function plot_tktd for making more-readable plots for calibration.
+- Small changes to ensure compatability with BYOM version 5.0.
+
+Version 2.2 (28 September 2020)
+
+- Spotted an error in the calculations for preventing shrinking on physical length on starvation. When running through the calculations with a rough time vector (as often in calibration), the maximum length before shrinking is poorly estimated. Simulations (with a generous time vector of 100 points or more) were not affected. In call_deri, a long time vector is now forced when glo.len == 2.
+- Changed the equations for preventing shrinking: the same algorithm as used in openGUTS for finding maximum damage over time for IT. This should increase speed a bit.
+- Changed the default settings for the ODE solver from [0 1] to [0 3].
+
+Version 2.3 (28 November 2021)
+
+- Adapted the package to work with BYOM 6.0.
+- Added a folder with the DEBkiss model in compound parameters. For simple fitting, this is easier to work with.
+- There is now an option to include a brood-pouch delay in the model. This shifts the model output in time. This is useful when the repro data represent neonate release from a brood pouch, rather than egg production.
+
+Version 2.3a (30 November 2021)
+
+- The profiling had an option setting in opt_prof that was modified. That did not produce an error; it just did not do what it was supposed to do. So the option 're_fit=1' was replaced be 'brkprof=2'.
+
+Archiving in GitHub (October 2026)
+
+- The last version 2.3a is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

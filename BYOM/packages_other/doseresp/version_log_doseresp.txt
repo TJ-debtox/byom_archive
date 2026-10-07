@@ -1,0 +1,36 @@
+Version log doseresp package for BYOM
+
+===========================================================================
+What is it?
+
+Use BYOM to fit a simple log-logistic dose-response curve to quantal (e.g., survival) or graded (e.g., reproduction) data. For quantal data, the binomial distribution is used. Now you can use BYOM tools like likelihood profiling and Bayes to your classic dose-response analyses.
+
+See also: https://www.debtox.info/about_ecx.html
+Walkthrough for the package: https://www.debtox.info/downloads/byom/html_doseresp/walkthrough_doseresp.html
+===========================================================================
+
+Version 1.0 (28 April 2017)
+
+- First release of this package. Note that it has not been thoroughly tested yet!
+
+Version 1.1 (9 August 2018)
+
+- Added a more tricked-out example (byom_doseresp_propazo) that does multiple runs for different x in ECx automatically, and writes the result (incl. CI) into the annotated plot.
+- Removed stuff from simplefun and call_deri that is not used in this package. Furthermore, made some changes to the comment sections of the code so that it is more helpful.
+- Some small modifications to make everything work with BYOM v. 4.2.
+
+Version 1.2 (22 May 2019)
+
+- When plotting on log-scale, the plotting vector is also made on log-scale. This avoids nasty-looking dose-response curves.
+- Added an optional setting glo.logzero for overriding the position of the zero-concentration controls on log-scale plots. When the dose-response is very shallow, and the first doses already have substantial effect, the control is not positioned low enough, which makes it look like a misfit. This can now be corrected manually by setting a low value for glo.logzero.
+- Added a simple estimation of starting values for ECx and Y0 (for beta, a default of 4 will usually work well enough). The ECx starting value is a guestimate for the EC50, but that will work well enough for EC10-EC90.
+- Added license information.
+
+Version 1.3 (17 November 2021)
+
+- Modified code to work with BYOM v.6.0.
+- Adapted startvals.m to work without statistics toolbox and to make a better ECx estimate in case the first treatment already has more than 50% effect.
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.3 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).
