@@ -1,0 +1,17 @@
+Version log GUTS_delayed_mort package for BYOM
+
+===========================================================================
+What is it?
+
+This package contains the files needed to reproduce the analyses in my paper on delayed mortality (Jager, 2024). See the 'Notes_...' text file in this directory for more information.
+
+Jager T (2024). Identifying and predicting delayed mortality with toxicokinetic-toxicodynamic models. Environ Toxicol Chem 43(5):1030-1035. https://doi.org/10.1002/etc.5833 (accepted version and SI can be found with the entry on https://www.debtox.info/papers_survival.html).
+===========================================================================
+
+Version 1.0 (5 December 2023)
+
+- First version of this package.
+
+Archiving in GitHub (October 2026)
+
+- The last version 1.0 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).

@@ -1,0 +1,15 @@
+Notes for BYOM package GUTS_delayed_mort
+========================================================
+This is the support package for the publication Jager (2024): "Identifying and predicting delayed mortality with toxicokinetic-toxicodynamic models." https://doi.org/10.1002/etc.5833 (a preprint is available from the list at https://www.debtox.info/papers_survival.html). It requires that you have the BYOM platform version 6.9 (or newer) installed. Make sure that the folder for the package is somewhere below the folder BYOM. 
+
+All figures in the paper and its supporting information can be reproduced from these files. Note that the parameter-space explorer applies random sampling, so small differences may result.
+
+The files byom_guts_FLU, byom_guts_ENR and byom_guts_LEV are used for calibration. Note that below the definition of the data set in <DATA{1}>, there is a line (commented out) that will restrict the data set to the observations on the first two days only. Uncommenting this line will thus calibrate on a typical Daphnia acute data set. 
+
+Calibration settings:
+- <glo.sel> is used to select SD or IT analysis (or even mixed, which was not used in the paper).
+- <glo.fastkin> is used to select between the reduced model (1) or the full model (0). Setting this parameter to 1 makes the first state variable (scaled internal concentration) infinitely fast, such that it is removed from the system.
+
+Every calibration produces a MAT file with the calibration results, including a sample from parameter space for error propagation. The MAT files will receive a name that reflects what kind of analysis was performed. The MAT files can be used in byom_guts_showcal to display the results of a previous calibration. The MAT files produced for the calibration on the 2-day data sets can be used in the scripts byom_guts_FLU_validation and byom_guts_ENR_validation to make predictions for the full data set. Simply run the script and select the appropriate MAT file. 
+
+I would advice not to make any modifications in any of the files apart from the script files that start with byom_guts_... unless you know what you are doing.

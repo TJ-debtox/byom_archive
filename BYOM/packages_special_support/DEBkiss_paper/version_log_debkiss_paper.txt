@@ -1,0 +1,25 @@
+Version log DEBkiss_paper package for BYOM
+
+===========================================================================
+What is it?
+
+This package contains the files to reproduce the figures for the pond snail in the DEBkiss paper (Jager et al., 2013). It is a basic implementation of DEBkiss, for continuous reproduction only, with optional maturity maintenance. Several things are specific for this example, so use the regular DEBkiss package for your own analyses. 
+
+Walkthrough for the package: https://www.debtox.info/downloads/byom/html_debkiss_paper/walkthrough_debkiss_paper.html
+Version logging starts with 2.0 (earlier version have not been logged).
+
+- Jager T, Martin BT and Zimmer EI (2013). DEBkiss or the quest for the simplest generic model of animal life history. J Theor Biol 328:9-18. http://dx.doi.org/10.1016/j.jtbi.2013.03.011 (accepted version and SI with the entry on https://www.debtox.info/debkiss_appl.html). 
+===========================================================================
+
+Version 2.0 (28 April 2017)
+
+- Modified package so it runs with BYOM 4.0.
+
+Version 2.1 (29 November 2021)
+
+- Modified package so it runs with BYOM 6.0.
+
+Archiving in GitHub (October 2026)
+
+- The last version 2.1 is now archived at GitHub at https://github.com/TJ-debtox/byom_archive/ This involved no changes whatsoever to the code. However, it involved modifying the header of the MIT-licensed files (removing 'all rights reserved' and pointing to the renamed license file in the BYOM root folder).
+
